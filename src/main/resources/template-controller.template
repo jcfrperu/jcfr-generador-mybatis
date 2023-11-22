@@ -1,0 +1,430 @@
+package **PAQUETE_BASE**.controladores;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+// import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.jcfr.utiles.enums.JExceptionEnum;
+import com.jcfr.utiles.web.ComboWeb;
+import **PAQUETE_BASE**.comunes.beans.DataJsonBean;
+import **PAQUETE_BASE**.comunes.exceptions.AppException;
+import **PAQUETE_BASE**.comunes.utiles.Catalogo;
+import **PAQUETE_BASE**.comunes.utiles.Constantes;
+import **PAQUETE_BASE**.controladores.base.BaseAdminController;
+import **PAQUETE_BASE**.dominio.entidades.**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity;
+import **PAQUETE_BASE**.servicios.**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Service;
+
+public class Registro**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Controller extends BaseController {
+
+    // para java util logging
+    // private static final Logger log = Logger.getLogger(Registro**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Controller.class.getName());
+
+    private static final Logger log = LogManager.getLogger(Registro**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Controller.class);
+
+    private static final String plantilla = "default";
+    private static final String modulo = "registro-**TABLA_MINUSCULA**";
+
+    @Autowired
+    @Qualifier("catalogo")
+    private Catalogo catalogo;
+
+    @Autowired
+    @Qualifier("**TABLA_MINUSCULA**Service")
+    private **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Service **TABLA_MINUSCULA**Service;
+
+    public ModelAndView mostrarBuscar(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> model = new HashMap<>();
+
+        try {
+
+            setVistaTemplate(model, "**TABLA_MINUSCULA**-buscar", modulo, plantilla);
+
+            cargarComboCatalogoTodos(request, "cboEstados", catalogo.INDEL, Constantes.REGISTRO_ACTIVO);
+
+			HashMap<String, Object> params = new HashMap<>();
+
+			params.put("indDel", Constantes.REGISTRO_ACTIVO);
+
+			// FIXME/TODO: definir cual usar (el primero es para busquedas simples, y la segunda para mostrar descripciones usando subconsultas)
+			// List<**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity> lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE** = **TABLA_MINUSCULA**Service.selectByMap(params);
+			List<Map<String, Object>> lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE** = **TABLA_MINUSCULA**Service.selectByMapGrilla(params);
+
+            model.put("lista", lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE**);
+
+            limpiarSession(request);
+
+            return handleModelAndView(model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleMsgError("R**PRIMERDIGITO_ERROR**C-MBU-001", sos);
+            log.error(msgError);
+            return handleErrorModelAndView(model, msgError, plantilla);
+        }
+    }
+
+    public ModelAndView validarBuscar(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        DataJsonBean dataJSON = new DataJsonBean();
+
+        try {
+
+            // recoger parametros y validar
+            String **TABLA_PRIMER_CAMPO** = JS.toUpperBlank(request.getParameter("int_**TABLA_PRIMER_CAMPO**"));
+			// FIXME/TODO: recoger los demas campos
+			// si son campos numeros o fechas en la vista se debe generar dos controles HTML INICIO - FIN
+
+            String msg = StringUtils.EMPTY;
+            Map<String, Object> result = new HashMap<>();
+
+            // validacion para **TABLA_PRIMER_CAMPO**
+            if (!JS._vacio(**TABLA_PRIMER_CAMPO**)) {
+
+                msg = JS._numeroEnteroNoNegativoString(**TABLA_PRIMER_CAMPO**, Constantes.VALIDACION_CAMPO);
+                if (!JS._vacio(msg)) {
+                    result.put("campoError", "int_**TABLA_PRIMER_CAMPO**");
+                    result.put("msgError", msg);
+
+                    throw new AppException("R**PRIMERDIGITO_ERROR**C-VBU---CONTADOR_ERROR--", msg, JExceptionEnum.VALIDACION, result);
+                }
+            }
+			// FIXME/TODO: colocar el resto de validaciones, lanzando el throw new AppException() de ejemplo de arriba
+
+            HashMap<String, Object> model = new HashMap<>();
+
+            dataJSON.setRespuesta("ok", null, model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleJSONError("R**PRIMERDIGITO_ERROR**C-VAB---CONTADOR_ERROR--", dataJSON, sos);
+            log.error(msgError);
+        }
+
+        return handleJSONResponse(dataJSON, response);
+    }
+
+    public ModelAndView buscar**TABLA_PRIMERA_MAYUSCULA_SIMPLE**(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> model = new HashMap<>();
+
+        try {
+
+            // recoger parametros
+            // TODO/FIXME: recoger los atributos: 
+            String **TABLA_PRIMER_CAMPO** = JS.toUpperBlank(request.getParameter("int_**TABLA_PRIMER_CAMPO**"));
+
+            setVistaPage(model, "**TABLA_MINUSCULA**-buscar-grilla", modulo, plantilla);
+
+            HashMap<String, Object> params = new HashMap<>();
+
+            // TODO/FIXME: armar el mapa con los parametros
+			if (JS._numeroEntero(**TABLA_PRIMER_CAMPO**)) params.put("**TABLA_PRIMER_CAMPO**", JS.toLong(**TABLA_PRIMER_CAMPO**));			
+			if (JS._numero(**TABLA_PRIMER_CAMPO**)) params.put("**TABLA_PRIMER_CAMPO**", JS.toDouble(**TABLA_PRIMER_CAMPO**));
+			if (JS._fecha(**TABLA_PRIMER_CAMPO**)) params.put("**TABLA_PRIMER_CAMPO**", JS.toDate(**TABLA_PRIMER_CAMPO**));			
+			if (!JS._vacio(**TABLA_PRIMER_CAMPO**)) params.put("**TABLA_PRIMER_CAMPO**", **TABLA_PRIMER_CAMPO** + "%");
+			if (!JS._vacio(**TABLA_PRIMER_CAMPO**)) params.put("**TABLA_PRIMER_CAMPO**", **TABLA_PRIMER_CAMPO**);
+
+			// FIXME/TODO: definir cual usar (el primero es para busquedas simples, y la segunda para mostrar descripciones usando subconsultas)
+			// List<**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity> lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE** = **TABLA_MINUSCULA**Service.selectByMap(params);
+			List<Map<String, Object>> lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE** = **TABLA_MINUSCULA**Service.selectByMapGrilla(params);
+
+            model.put("lista", lista**TABLA_PRIMERA_MAYUSCULA_SIMPLE**);
+
+            return handleModelAndView(model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleMsgError("R**PRIMERDIGITO_ERROR**C-BCA---CONTADOR_ERROR--", sos);
+            log.error(msgError);
+            return handleErrorModelAndView(model, msgError);
+        }
+    }
+
+    public ModelAndView mostrarNuevo(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> model = new HashMap<>();
+
+        try {
+
+            setVistaTemplate(model, "**TABLA_MINUSCULA**-nuevo", modulo, plantilla);
+
+            return handleModelAndView(model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleMsgError("R**PRIMERDIGITO_ERROR**C-MNU-017", sos);
+            log.error(msgError);
+            return handleErrorModelAndView(model, msgError);
+        }
+    }
+
+    private Map<String, Object> validarGuardar(HttpServletRequest request) throws Exception {
+
+        // recoger parametros y validar
+        // TODO/FIXME: recoger atributos (sin el id) del request con toBlank -> String xxxx = JS.toUpperBlank(request.getParameter("int_xxx"));
+
+        String msg = StringUtils.EMPTY;
+        Map<String, Object> result = new HashMap<>();
+
+        // validacion para nombre
+        // TODO/FIXME: llenar aqui todos los -> msg = JS._campoNoVacio(**TABLA_PRIMER_CAMPO**, Constantes.VALIDACION_CAMPO); ... return result
+
+        // validar que no exista otro igual
+        **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity found = buscarRegistroPorUnique(nombre);
+        if (found != null) {
+            result.put("campoError", "general");
+            result.put("msgError", "**TABLA_PRIMERA_MAYUSCULA** ya fue registrada");
+
+            return result;
+        }
+
+        // armar entity
+        **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = new **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity();
+
+        // TODO/FIXME: armar el entity -> registro.set**TABLA_PRIMERA_MAYUSCULA_SIMPLE**ID(JS.toLong(**TABLA_PRIMER_CAMPO**));
+        registro.setIndDel(Constantes.REGISTRO_ACTIVO);
+
+        setCamposAuditoria(request, registro, true);
+
+        // setearlo al mapa resultado
+        result.put("registro", registro);
+
+        return result;
+    }
+
+    public ModelAndView guardarNuevo(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        DataJsonBean dataJSON = new DataJsonBean();
+
+        try {
+
+            // recoger parametros y validar
+            Map<String, Object> result = validarGuardar(request);
+            String msgError = MapUtils.getString(result, "msgError");
+            if (!JS._vacio(msgError)) {
+                throw new AppException("R**PRIMERDIGITO_ERROR**C-GNU---CONTADOR_ERROR--", msgError, JExceptionEnum.VALIDACION, result);
+            }
+
+            HashMap<String, Object> model = new HashMap<>();
+
+            **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = (**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity) result.get("registro");
+
+            **TABLA_MINUSCULA**Service.insert(registro);
+
+            model.put("idGenerado", String.valueOf(registro.get**TABLA_PRIMERA_MAYUSCULA_SIMPLE**ID()));
+
+            limpiarSession(request);
+
+            dataJSON.setRespuesta("ok", null, model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleJSONError("R**PRIMERDIGITO_ERROR**C-GNU---CONTADOR_ERROR--", dataJSON, sos);
+            log.error(msgError);
+        }
+
+        return handleJSONResponse(dataJSON, response);
+    }
+
+
+    public ModelAndView mostrarEditar(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> model = new HashMap<>();
+
+        try {
+
+            setVistaTemplate(model, "**TABLA_MINUSCULA**-editar", modulo, plantilla);
+
+            // recoger parametros y validar
+            String **TABLA_PRIMER_CAMPO** = JS.toBlank(request.getParameter("**TABLA_PRIMER_CAMPO**"));
+            if (!JS._numeroEntero(**TABLA_PRIMER_CAMPO**)) throw new AppException("R**PRIMERDIGITO_ERROR**C-MED---CONTADOR_ERROR--", "Argumento ilegal del request");
+
+            **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = **TABLA_MINUSCULA**Service.selectByID(JS.toLong(**TABLA_PRIMER_CAMPO**));
+            if (registro == null) throw new AppException("R**PRIMERDIGITO_ERROR**C-MED---CONTADOR_ERROR--", "**TABLA_PRIMERA_MAYUSCULA** no encontrada");
+
+            cargarComboCatalogoSeleccione(request, "cboEstados", catalogo.INDEL, registro.getIndDel());
+
+            model.put("registro", registro);
+
+            return handleModelAndView(model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleMsgError("R**PRIMERDIGITO_ERROR**C-MED---CONTADOR_ERROR--", sos);
+            log.error(msgError);
+            return handleErrorModelAndView(model, msgError);
+        }
+    }
+
+    private Map<String, Object> validarEditar(HttpServletRequest request) throws Exception {
+
+        // recoger parametros y validar
+        // TODO/FIXME: recoger atributos (con el id) del request con toBlank -> String xxxx = JS.toUpperBlank(request.getParameter("int_xxx"));
+
+        String msg = StringUtils.EMPTY;
+        Map<String, Object> result = new HashMap<>();
+
+        // validacion para **TABLA_PRIMER_CAMPO**
+        // TODO/FIXME: llenar aqui todos los -> msg = JS._campoNoVacio(**TABLA_PRIMER_CAMPO**, Constantes.VALIDACION_CAMPO); ... return result
+
+		// validar que no exista otro igual
+		**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity found = buscarRegistroPorUnique(nombre);
+		if (found != null && !JS._equiv(found.get**TABLA_PRIMERA_MAYUSCULA_SIMPLE**ID(), JS.toLong(**TABLA_PRIMER_CAMPO**))) {
+			result.put("campoError", "general");
+			result.put("msgError", "**TABLA_PRIMERA_MAYUSCULA** ya fue registrada");
+
+			return result;
+		}
+
+        // armar entity
+        **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = new **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity();
+
+        // TODO/FIXME: armar el entity -> registro.set**TABLA_PRIMERA_MAYUSCULA_SIMPLE**ID(JS.toLong(**TABLA_PRIMER_CAMPO**));
+        registro.setIndDel(indDel);
+
+        setCamposAuditoria(request, registro, false);
+
+        // setearlo al mapa resultado
+        result.put("registro", registro);
+
+        return result;
+    }
+
+    public ModelAndView guardarEditar(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        DataJsonBean dataJSON = new DataJsonBean();
+
+        try {
+
+            // recoger parametros y validar
+            Map<String, Object> result = validarEditar(request);
+
+            String msgError = MapUtils.getString(result, "msgError");
+            if (!JS._vacio(msgError)) {
+                throw new AppException("R**PRIMERDIGITO_ERROR**C-GED---CONTADOR_ERROR--", msgError, JExceptionEnum.VALIDACION, result);
+            }
+
+            HashMap<String, Object> model = new HashMap<>();
+
+            **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = (**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity) result.get("registro");
+
+            **TABLA_MINUSCULA**Service.update(registro);
+
+            limpiarSession(request);
+
+            dataJSON.setRespuesta("ok", null, model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleJSONError("R**PRIMERDIGITO_ERROR**C-GUA---CONTADOR_ERROR--", dataJSON, sos);
+            log.error(msgError);
+        }
+
+        return handleJSONResponse(dataJSON, response);
+    }
+
+    private **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity buscarRegistroPorUnique(String campoUnique) throws Exception {
+
+        **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity filtro = new **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity();
+
+		// FIXME/TODO: poner el set del campo unique que corresponde
+        filtro.setXXX(campoUnique);
+
+        List<**TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity> resultados = **TABLA_MINUSCULA**Service.select(filtro);
+
+        if (CollectionUtils.isNotEmpty(resultados)) {
+            return resultados.get(0);
+        }
+
+        return null;
+    }
+
+    public ModelAndView ver**TABLA_PRIMERA_MAYUSCULA_SIMPLE**(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Map<String, Object> model = new HashMap<>()
+
+        try {
+
+            setVistaTemplate(model, "**TABLA_MINUSCULA**-ver", modulo, plantilla);
+
+            // recoger parametros y validar
+            String **TABLA_PRIMER_CAMPO** = JS.toBlank(request.getParameter("**TABLA_PRIMER_CAMPO**"));
+            if (!JS._numeroEntero(**TABLA_PRIMER_CAMPO**)) throw new AppException("R**PRIMERDIGITO_ERROR**C-VCA---CONTADOR_ERROR--", "Argumento ilegal del request");
+
+            **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity registro = **TABLA_MINUSCULA**Service.selectByID(JS.toLong(**TABLA_PRIMER_CAMPO**));
+            if (registro == null) throw new AppException("R**PRIMERDIGITO_ERROR**C-VEC---CONTADOR_ERROR--", "**TABLA_PRIMERA_MAYUSCULA** no encontrada");
+
+            cargarComboCatalogoSeleccione(request, "cboEstados", catalogo.INDEL, registro.getIndDel());
+
+            model.put("registro", registro);
+
+            return handleModelAndView(model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleMsgError("R**PRIMERDIGITO_ERROR**C-VCA---CONTADOR_ERROR--", sos);
+            log.error(msgError);
+            return handleErrorModelAndView(model, msgError);
+        }
+    }
+
+    public ModelAndView eliminar**TABLA_PRIMERA_MAYUSCULA_SIMPLE**(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        DataJsonBean dataJSON = new DataJsonBean();
+
+        try {
+
+            // recoger parametros y validar
+            String **TABLA_PRIMER_CAMPO** = JS.toBlank(request.getParameter("**TABLA_PRIMER_CAMPO**"));
+            if (!JS._numeroEntero(**TABLA_PRIMER_CAMPO**)) throw new AppException("R**PRIMERDIGITO_ERROR**C-ECA---CONTADOR_ERROR--", "Argumento ilegal del request");
+
+            HashMap<String, Object> model = new HashMap<>();
+
+            **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity entity = new **TABLA_PRIMERA_MAYUSCULA_SIMPLE**Entity();
+
+            entity.set**TABLA_PRIMERA_MAYUSCULA_SIMPLE**ID(JS.toLong(**TABLA_PRIMER_CAMPO**));
+
+            **TABLA_MINUSCULA**Service.delete(entity);
+
+            dataJSON.setRespuesta("ok", null, model);
+
+        } catch (Exception sos) {
+
+            // manejo  de errores
+            String msgError = handleJSONError("R**PRIMERDIGITO_ERROR**C-ELI---CONTADOR_ERROR--", dataJSON, sos);
+            log.error(msgError);
+        }
+
+        return handleJSONResponse(dataJSON, response);
+    }
+
+    private void limpiarSession(HttpServletRequest request) throws Exception {
+
+        // TODO/FIXME
+        // limpiar los atributos de session
+        // setSessionAttribute(request, Constantes.ADMIN_REGISTRO_CATEGORIAS.SESSION_XXXX, null);
+    }
+
+}

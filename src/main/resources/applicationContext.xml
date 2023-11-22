@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+           http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.simios.simioapp"/>
+
+    <!-- CONFIGURACION CON JNDI -->
+    <!-- <jee:jndi-lookup id="dataSource" -->
+    <!-- jndi-name="jdbc/nombreJDNI" resource-ref="true" cache="true" /> -->
+
+    <!-- <bean id="transactionManager" -->
+    <!-- class="org.springframework.transaction.jta.JtaTransactionManager" /> -->
+
+    <!-- <tx:annotation-driven transaction-manager="transactionManager" /> -->
+    <!-- CONFIGURACION CON JNDI - FIN -->
+
+
+    <!-- CONFIGURACION SIN JNDI -->
+
+    <!-- bean para manejar archivo externo de propiedades -->
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+          p:location="classpath:simioapp.properties"/>
+
+    <!-- file:///C:/Applications/external/external.properties -->
+
+    <!--bean para manejar un datasource usando DriverManagerDataSource (tambien hay SingleConnectionDataSource) -->
+    <!--<bean id="dataSource"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource"-->
+    <!--p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.url}"-->
+    <!--p:username="${jdbc.username}" p:password="${jdbc.password}"/>-->
+
+    <!-- bean para manejar un datasource usando BasicDataSource -->
+    <bean id="dataSource"
+          class="org.apache.commons.dbcp.BasicDataSource"
+          p:driverClassName="${jdbc.driverClassName}"
+          p:url="${jdbc.url}"
+          p:username="${jdbc.username}"
+          p:password="${jdbc.password}"
+          p:initialSize="16" p:maxActive="32"/>
+
+    <!-- bean para manejo de transacciones y para usarlo con anotaciones -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!-- CONFIGURACION SIN JNDI - FIN -->
+
+
+    <!-- bean que enlaza mybatis con spring -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- para no tener que escribir mucho paquete en los alias de los xml -->
+        <!-- <property name="typeAliasesPackage" value="com.siga.model.entities"
+            /> -->
+
+        <!-- en caso de configurar con XML indicar los XMLs, sino usar mapper scanner -->
+        <!-- <property name="mapperLocations" value="classpath*:model/dao/*.xml"
+            /> -->
+
+    </bean>
+
+    <!-- bean para indicar donde estan los mappers -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:basePackage="com.simios.simioapp.dao"/>
+
+</beans>

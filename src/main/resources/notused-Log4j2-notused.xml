@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="WARN">
+	<Properties>
+		<Property name="log-path">/home/juaneco/jcfr/logs</Property>
+	</Properties>
+	<appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%5p] (%F:%M:%L)%n%m%n%n" />
+		</Console>
+		<RollingFile name="DAILY" fileName="${log-path}/simioapp.log"
+			filePattern="${log-path}/simioapp-%d{yyyy-MM-dd}.log">
+			<PatternLayout>
+				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+				</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+		</RollingFile>
+	</appenders>
+	<loggers>
+		<root level="info">
+			<appender-ref ref="Console" level="info" />
+			<appender-ref ref="DAILY" level="info" />
+		</root>
+		<logger name="org.springframework" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger>
+		<logger name="org.mybatis" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger>
+		<logger name="com.simios.simioapp" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger>
+		<logger name="com.simios.simioapp.dao" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger> 
+		<logger name="com.simios.simioapp.negocio" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger> 
+		<logger name="com.simios.simioapp.servicios" additivity="false">
+			<appender-ref ref="DAILY" />
+			<appender-ref ref="Console" />
+		</logger> 
+	</loggers>
+</configuration>

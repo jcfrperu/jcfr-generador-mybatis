@@ -1,0 +1,109 @@
+package **PAQUETE_BASE**.controller.rest;
+
+import **PAQUETE_BASE**.controller.base.BaseController;
+import **PAQUETE_BASE**.domain.entities.**TABLA**Entity;
+import **PAQUETE_BASE**.security.SessionUser;
+import **PAQUETE_BASE**.service.**TABLA**Service;
+import **PAQUETE_BASE**.service.CatalogoService;
+import **PAQUETE_BASE**.util.Constantes;
+import **PAQUETE_BASE**.validations.GroupDelete;
+import **PAQUETE_BASE**.validations.GroupInsert;
+import **PAQUETE_BASE**.validations.GroupUpdate;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@RequestMapping(value = "/secured")
+public class Registro**TABLA**RestController extends BaseController {
+
+    private static final String plantilla = "main";
+    private static final String modulo = "registro-**TABLA_MINUSCULA**";
+
+    private final **TABLA**Service **TABLA_MINUSCULA**Service;
+    private final CatalogoService catalogoService;
+
+    @Autowired
+    public Registro**TABLA**RestController(**TABLA**Service **TABLA_MINUSCULA**Service, CatalogoService catalogoService) {
+        this.**TABLA_MINUSCULA**Service = **TABLA_MINUSCULA**Service;
+        this.catalogoService = catalogoService;
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/list", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<**TABLA**Entity>> list(
+            @RequestBody @Nullable **TABLA**Entity entity,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        List<**TABLA**Entity> list = **TABLA_MINUSCULA**Service.select(ObjectUtils.defaultIfNull(entity, new **TABLA**Entity()));
+
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/list-by-map", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<**TABLA**Entity>> listByMap(
+            @RequestBody @NotNull Map<String, Object> params,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        List<**TABLA**Entity> list = **TABLA_MINUSCULA**Service.selectByMap(params);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/list-by-map-grilla", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Map<String, Object>>> listBy(
+            @RequestBody @NotNull Map<String, Object> params,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        List<Map<String, Object>> list = **TABLA_MINUSCULA**Service.selectByMapGrilla(params);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/insert", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<**TABLA**Entity> insert(
+            @RequestBody @Validated({GroupInsert.class}) **TABLA**Entity entity,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        fillAuditoria(entity, true, sessionUser);
+
+        **TABLA_MINUSCULA**Service.insert(entity);
+
+        return ResponseEntity.ok(entity);
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/update", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<**TABLA**Entity> update(
+            @RequestBody @Validated({GroupUpdate.class}) **TABLA**Entity entity,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        fillAuditoria(entity, false, sessionUser);
+
+        **TABLA_MINUSCULA**Service.update(entity);
+
+        return ResponseEntity.ok(entity);
+    }
+
+    @PostMapping(value = "/**TABLA_MINUSCULA**/delete", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<**TABLA**Entity> delete(
+            @RequestBody @Validated({GroupDelete.class}) **TABLA**Entity entity,
+            @ModelAttribute(Constantes.SESSION_USER) SessionUser sessionUser) throws Exception {
+
+        fillAuditoria(entity, false, sessionUser);
+
+        **TABLA_MINUSCULA**Service.delete(entity);
+
+        return ResponseEntity.ok(entity);
+    }
+}
